@@ -1,16 +1,21 @@
 package com.example.health.controller;
 
-import com.example.health.service.AuthService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.health.service.AuthService;
+
 @RestController
-@RequestMapping("/api/auth")
-@CrossOrigin
+@RequestMapping("/auth") // Changed from /api/auth
 public class AuthController {
     
     @Autowired
@@ -22,7 +27,10 @@ public class AuthController {
             Map<String, Object> response = authService.register(request);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            error.put("timestamp", LocalDateTime.now().toString());
+            return ResponseEntity.badRequest().body(error);
         }
     }
     
@@ -32,16 +40,19 @@ public class AuthController {
             Map<String, Object> response = authService.login(request);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Invalid credentials"));
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Invalid credentials");
+            error.put("timestamp", LocalDateTime.now().toString());
+            return ResponseEntity.badRequest().body(error);
         }
     }
     
     @GetMapping("/test")
     public ResponseEntity<?> test() {
-        return ResponseEntity.ok(Map.of(
-            "message", "Auth API is working!",
-            "timestamp", LocalDateTime.now().toString(),
-            "status", "OK"
-        ));
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Auth API is working!");
+        response.put("timestamp", LocalDateTime.now().toString());
+        response.put("status", "OK");
+        return ResponseEntity.ok(response);
     }
 }
